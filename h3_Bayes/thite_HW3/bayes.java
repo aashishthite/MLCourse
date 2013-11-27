@@ -1,78 +1,76 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
- import java.util.Random;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-public class dtLearn 
-{
-
-	
-	public static void main(String[] args) 
+import java.io.*;
+import java.util.*;
+public class bayes{
+	public static void main(String[] args)
 	{
-		if (args.length < 3) 
+		if(args.length<3)
 		{
-			System.out.println("usage: java dt-learn <train-set-file> <test-set-file> <m>");
-			System.exit(-1);
+			System.out.println("usage: bayes <train> <test> <n|t>");
+			return;
 		}
-		if(!isInteger(args[2]) || Integer.parseInt(args[2])<1)
+		DataSet train = createDataSet(args[0]);
+		DataSet test = createDataSet(args[1]);	
+		
+	
+		//nbc learing curve:
+		//25 -> 0.8214285714
+		//50 -> 0.8452380952
+		//100 -> 0.8571428571
+		if(args[2].equals("n"))
 		{
-			System.out.println("Not a valid m value");
-			System.exit(-1);
-		}
-		 
-	 	
-		
-		DataSet trainSet = createDataSet(args[0]);
-		DataSet testSet = createDataSet(args[1]);		
-		//System.out.println(trainSet == null);
-		 
-		
-		DecisionTree tree = new DecisionTree(trainSet,Integer.parseInt(args[2]));
-		/*
-		Random generator = new Random();
-		double avg_accuracy = 0;
-		for(int ii = 0; ii < 10; ii++)
-		{
-			DataSet tempSet = createSubDataSet(trainSet,generator,100);
-			DecisionTree tree = new DecisionTreeImpl(tempSet,Integer.parseInt(args[2]));
-			avg_accuracy += tree.calcTestAccuracy(testSet);
-			System.out.println(tree.calcTestAccuracy(testSet));
-		}
-		System.out.println(avg_accuracy/10);
-*/
-		
-		System.out.println(" ");
-		tree.print();
-		System.out.println(" ");
-		
-		String ss = "";
-		for(String attr : testSet.attributes)
-			ss += attr + " ";
-		ss += "predicted actual";
-		System.out.println(ss);
-		int correct = 0;
-		for (Instance instance : testSet.instances) 
-		{
-			String predicted = tree.classify(instance);
-			String s = "";
-			for(String attr : instance.attributes)
-				s += attr + " ";
-			s +=  predicted + " " + instance.label;
-			System.out.println(s);
-			if(instance.label.equals(predicted))
-				correct++;
+			//Random generator = new Random();
+			//double avg_accuracy = 0;
+			//for(int ii = 0; ii < 4; ii++)
+			//{
+				DataSet tempSet = train;//createSubDataSet(train,generator,25);
+				nbc classifier = new nbc();
+				classifier.train(tempSet);
+				System.out.println();
+				int num = 0;
+				for(Instance inst : test.instances)
+				{
+					ClassifyResult cr = classifier.classify(inst);
+					System.out.println(cr.label + " " + inst.label + " " + cr.posteriorProb);
+					if(cr.label.equals(inst.label)) num++;
+				}
+				System.out.println("\n"+num);
+				//avg_accuracy += (double)num/(double)test.instances.size();
+			//}
+			//System.out.println(avg_accuracy/4);
 			
 		}
-		System.out.println(" ");
-		System.out.println("Correctly classiified " +correct + " instances out of total " + testSet.instances.size() + " instances");
-		 
+		//tan learning curve
+		//25 -> 0.6607142857142858
+		//50 -> 0.8035714285714286
+		//100 ->0.8333333333333334
+		else if( args[2].equals("t"))
+		{
+			//Random generator = new Random();
+			//double avg_accuracy = 0;
+			//for(int ii = 0; ii < 4; ii++)
+			//{
+			DataSet tempSet = train;//createSubDataSet(train,generator,100);
+			tan classifier = new tan();
+			classifier.train(tempSet);
+			classifier.printStruct();
+			System.out.println();
+			int num = 0;
+			for(Instance inst : test.instances)
+			{
+				ClassifyResult cr = classifier.classify(inst);
+				System.out.println(cr.label + " " + inst.label + " " + cr.posteriorProb);
+				if(cr.label.equals(inst.label)) num++;
+			}
+			System.out.println("\n"+num);	
+			//avg_accuracy += (double)num/(double)test.instances.size();
+			//}
+			//System.out.println(avg_accuracy/4);
+		}
+		else
+		{
+			System.out.println("Use n or t to choose classifier");
+		}
 	}
-
-	
 	private static DataSet createDataSet(String file) {
 		
 		DataSet set = new DataSet();
@@ -81,10 +79,7 @@ public class dtLearn
 			in = new BufferedReader(new FileReader(file));
 			while (in.ready()) { 
 				String line = in.readLine();
-				//
 				char firstChar = line.charAt(0);
-				
-				//
 				
 				if (firstChar == '%') 
 				{
@@ -104,10 +99,9 @@ public class dtLearn
 			e.printStackTrace();
 			System.exit(-1);
 		} 		
-		
 		return set;
 	}
-
+	
 	private static DataSet createSubDataSet(DataSet dataset, Random generator, int _size)
 	{
 		if(_size >= dataset.instances.size())
@@ -159,17 +153,5 @@ public class dtLearn
 		}
 		newDataSet.instances = newInstances;
 		return newDataSet;		
-	}
-	private static boolean isInteger(String s) 
-	{
-	        try 
-		{ 
-	            Integer.parseInt(s); 
-	        } 
-		catch(NumberFormatException e) 
-		{ 
-	            return false; 
-	        }
-	        return true;
 	}
 }

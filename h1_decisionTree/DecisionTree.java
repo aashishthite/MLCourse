@@ -138,6 +138,7 @@ public class DecisionTree
 			}
 			else
 			{
+				
 				Feature tempF	   = getBestAttribute(train);
 				String attribute   = tempF.featureName;
 				root.isNumeric = tempF.isNumeric;
@@ -145,6 +146,7 @@ public class DecisionTree
 				root.attribute = attribute;
 				root.terminal  = false;
 				root.label     =  train.labels.get(majorityVote(train));
+				
 				int noOfAttribVal  = root.isNumeric?2:train.attributeValues.get(attribute).size();
 				//System.out.println(root.isNumeric+" "+root.attribute + " " + root.threshold );
 				
@@ -519,7 +521,7 @@ public class DecisionTree
 			}
 			
 		}
-		//System.out.println(maxMutualInfo);
+		System.out.println(maxMutualInfo);
 		return bestAttribute;
 	}
 	

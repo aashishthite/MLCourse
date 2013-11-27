@@ -1,0 +1,21 @@
+import java.util.*;
+public class tan
+{
+	Map<String,Map<String,Integer>> mapPos,mapNeg;
+	int countPos,countNeg;
+	double[][] treeFinal;
+	DataSet trainSet;
+	public void train(DataSet train)
+	{
+		
+	}
+	public void constructTree()
+	{
+		
+	}
+	public double condMutualInfo(String attr1, String attr2)
+	{
+		
+	}
+
+}
